@@ -12,6 +12,7 @@ public class LoanMapper {
         if (loan == null){
             return null;
         }
+
         LoanDto loanDto = new LoanDto();
         loanDto.setId(loan.getId());
         loanDto.setLoanDate(loan.getLoanDate());
