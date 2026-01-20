@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de Bord | Biblio-Tech</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-paper: #f8f5f2;
+            --ink-dark: #1e293b;
+            --gold-accent: #c0a062;
+            --soft-gray: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg-paper);
+            color: var(--ink-dark);
+            font-weight: 300;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, .serif-font {
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            padding: 1.5rem 0;
+            background: white;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+        .navbar-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--ink-dark) !important;
+        }
+        .navbar-brand span { color: var(--gold-accent); }
+        .nav-link { color: var(--ink-dark); font-weight: 500; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* CARTES DASHBOARD */
+        .card-kpi {
+            background: white;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-kpi:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+        }
+        .card-kpi::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--gold-accent);
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+            color: var(--gold-accent);
+            opacity: 0.2;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .kpi-value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3rem;
+            color: var(--ink-dark);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .kpi-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* ACTIONS RAPIDES */
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid var(--soft-gray);
+            padding: 1.2rem 1.5rem;
+            background: white;
+            transition: background 0.2s;
+            color: var(--ink-dark);
+        }
+        .list-group-item:last-child { border-bottom: none; }
+        .list-group-item:hover {
+            background-color: rgba(192, 160, 98, 0.05);
+            color: var(--ink-dark);
+        }
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-paper);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-accent);
+            margin-right: 15px;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="/">Biblio<span>.</span>Tech <small style="font-family: 'Jost'; font-size: 0.8rem; color: #999;">ADMIN</small></a>
+        <div class="d-flex align-items-center gap-3">
+            <a th:href="@{/}" class="btn btn-outline-dark btn-sm rounded-0" style="font-size: 0.7rem; letter-spacing: 1px;">VOIR SITE</a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm rounded-0" style="font-size: 0.7rem; letter-spacing: 1px;">DÉCONNEXION</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mb-5">
+    <div class="mb-5">
+        <h6 class="text-uppercase text-muted mb-1" style="letter-spacing: 2px; font-size: 0.8rem;">Supervision</h6>
+        <h2 class="display-6">Vue d'ensemble</h2>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-4 mb-5">
+        <!-- Carte Livres -->
+        <div class="col-md-4">
+            <div class="card-kpi p-4">
+                <i class="bi bi-book kpi-icon"></i>
+                <div class="kpi-value" th:text="${totalBooks}">0</div>
+                <div class="kpi-label">Ouvrages en rayon</div>
+                <a th:href="@{/admin/books}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Carte Emprunts -->
+        <div class="col-md-4">
+            <div class="card-kpi p-4">
+                <i class="bi bi-journal-arrow-up kpi-icon"></i>
+                <div class="kpi-value" th:text="${activeLoans}">0</div>
+                <div class="kpi-label">Emprunts actifs</div>
+                <a th:href="@{/admin/loans}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Carte Utilisateurs (Placeholder) -->
+        <div class="col-md-4">
+            <div class="card-kpi p-4">
+                <i class="bi bi-people kpi-icon"></i>
+                <div class="kpi-value" th:text="${totalUsers}">3</div>
+                <div class="kpi-label">Membres inscrits</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Actions -->
+    <h4 class="mb-3 fs-4">Raccourcis de gestion</h4>
+    <div class="card border-0 shadow-sm rounded-1 overflow-hidden">
+        <div class="list-group list-group-flush">
+
+            <a th:href="@{/admin/books/add}" class="list-group-item list-group-item-action d-flex align-items-center">
+                <div class="action-icon"><i class="bi bi-plus-lg"></i></div>
+                <div>
+                    <div class="fw-medium">Enregistrer un nouvel ouvrage</div>
+                    <small class="text-muted">Ajouter un livre au catalogue général.</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+            </a>
+
+            <a th:href="@{/admin/loans}" class="list-group-item list-group-item-action d-flex align-items-center">
+                <div class="action-icon"><i class="bi bi-arrow-return-left"></i></div>
+                <div>
+                    <div class="fw-medium">Gérer les retours</div>
+                    <small class="text-muted">Clôturer les emprunts et vérifier les retards.</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="container text-center">
+        <p>&copy; 2025 Biblio.Tech — Excellence & Design</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

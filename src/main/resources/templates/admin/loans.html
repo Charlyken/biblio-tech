@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblio-Tech | Registre des Emprunts</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-paper: #f8f5f2;
+            --ink-dark: #1e293b;
+            --gold-accent: #c0a062;
+            --soft-gray: #e2e8f0;
+
+            /* Couleurs de statut tamisées */
+            --status-active-bg: #ecfdf5;
+            --status-active-text: #047857;
+            --status-late-bg: #fef2f2;
+            --status-late-text: #b91c1c;
+            --status-done-bg: #f1f5f9;
+            --status-done-text: #64748b;
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg-paper);
+            color: var(--ink-dark);
+            font-weight: 300;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .serif-font {
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            padding: 1.5rem 0;
+            background: white;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+        .navbar-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--ink-dark) !important;
+        }
+        .navbar-brand span { color: var(--gold-accent); }
+        .nav-link { color: var(--ink-dark); font-weight: 500; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* TABLEAU */
+        .card-custom {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .table-custom thead th {
+            background-color: white;
+            color: var(--ink-dark);
+            font-family: 'DM Serif Display', serif;
+            font-weight: normal;
+            font-size: 1.1rem;
+            border-bottom: 2px solid var(--gold-accent);
+            padding: 15px;
+        }
+        .table-custom tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--soft-gray);
+            font-size: 0.95rem;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(192, 160, 98, 0.05);
+        }
+
+        /* BADGES DE STATUT */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-EN_COURS {
+            background-color: var(--status-active-bg);
+            color: var(--status-active-text);
+            border: 1px solid rgba(4, 120, 87, 0.1);
+        }
+        .status-EN_RETARD {
+            background-color: var(--status-late-bg);
+            color: var(--status-late-text);
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+        .status-TERMINE {
+            background-color: var(--status-done-bg);
+            color: var(--status-done-text);
+            border: 1px solid rgba(100, 116, 139, 0.1);
+            text-decoration: line-through;
+        }
+
+        /* BOUTON D'ACTION */
+        .btn-action-return {
+            border: 1px solid var(--gold-accent);
+            color: var(--ink-dark);
+            background: white;
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 0;
+            transition: all 0.3s;
+        }
+        .btn-action-return:hover {
+            background: var(--gold-accent);
+            color: white;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="/">Biblio<span>.</span>Tech <small style="font-family: 'Jost'; font-size: 0.8rem; color: #999;">ADMIN</small></a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="nav-link" sec:authentication="name">Admin</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm rounded-0" style="font-size: 0.7rem; letter-spacing: 1px;">DÉCONNEXION</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h6 class="text-uppercase text-muted mb-1" style="letter-spacing: 2px; font-size: 0.8rem;">Circulation</h6>
+            <h2 class="display-6">Registre des Emprunts</h2>
+        </div>
+        <!-- On peut ajouter un filtre ici plus tard -->
+    </div>
+
+    <!-- Messages Flash -->
+    <div th:if="${popupMessage}" class="alert alert-success rounded-0 border-0 shadow-sm mb-4">
+        <i class="bi bi-check-circle me-2"></i> <span th:text="${popupMessage}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger rounded-0 border-0 shadow-sm mb-4">
+        <i class="bi bi-exclamation-circle me-2"></i> <span th:text="${error}"></span>
+    </div>
+
+    <div class="card card-custom bg-white">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Ouvrage</th>
+                    <th>Adhérent</th>
+                    <th>Date Emprunt</th>
+                    <th>Date Limite</th>
+                    <th class="text-center">Statut</th>
+                    <th>Retourné le</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="loan : ${loans}">
+                    <!-- Livre -->
+                    <td>
+                        <div class="fw-medium" th:text="${loan.book.title}">Titre</div>
+                        <small class="text-muted" th:text="${loan.book.isbn}">ISBN</small>
+                    </td>
+
+                    <!-- Adhérent -->
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2"
+                                 style="width: 30px; height: 30px; font-size: 0.8rem; color: #aaa;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span th:text="${loan.user.username}">User</span>
+                        </div>
+                    </td>
+
+                    <!-- Dates -->
+                    <td class="text-muted" th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">01/01/2024</td>
+
+                    <td>
+                        <span th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}"
+                              th:class="${loan.status.name() == 'EN_RETARD'} ? 'text-danger fw-bold' : ''">
+                            15/01/2024
+                        </span>
+                    </td>
+
+                    <!-- Statut (Badge Dynamique) -->
+                    <td class="text-center">
+                        <span class="status-badge"
+                              th:classappend="'status-' + ${loan.status.name()}">
+                            <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
+                            <span th:text="${loan.status == T(com.charlyken.bibliotech.model.LoanStatus).EN_COURS ? 'ACTIF' :
+                                           (loan.status == T(com.charlyken.bibliotech.model.LoanStatus).EN_RETARD ? 'RETARD' : 'TERMINÉ')}">
+                                STATUT
+                            </span>
+                        </span>
+                    </td>
+
+                    <!-- Date de retour réelle -->
+                    <td class="small text-muted">
+                        <span th:if="${loan.returnDate != null}" th:text="${#temporals.format(loan.returnDate, 'dd/MM/yyyy')}">-</span>
+                        <span th:if="${loan.returnDate == null}">-</span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="text-end">
+                        <a th:if="${loan.status.name() != 'TERMINE'}"
+                           th:href="@{/loans/close/{loanId}(loanId=${loan.id})}"
+                           class="btn btn-action-return"
+                           onclick="return confirm('Confirmer le retour de ce livre ?')">
+                            <i class="bi bi-box-arrow-in-down-left me-1"></i> Rendre
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Liste vide -->
+                <tr th:if="${#lists.isEmpty(loans)}">
+                    <td colspan="7" class="text-center py-5 text-muted fst-italic">
+                        Aucun emprunt enregistré.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="container text-center">
+        <p>&copy; 2025 Biblio.Tech — Excellence & Design</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

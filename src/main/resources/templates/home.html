@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblio-Tech | L'Architecture du Savoir</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts: DM Serif Display (Titres) & Jost (Corps) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-paper: #f8f5f2;      /* Fond papier chaud */
+            --ink-dark: #1e293b;      /* Texte type encre */
+            --gold-accent: #c0a062;   /* Dorure */
+            --soft-gray: #e2e8f0;     /* Éléments subtils */
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg-paper);
+            color: var(--ink-dark);
+            font-weight: 300;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .serif-font {
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVBAR ÉPURÉE */
+        .navbar {
+            padding: 2rem 0;
+            background: transparent;
+        }
+        .navbar-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: var(--ink-dark) !important;
+            letter-spacing: -0.5px;
+        }
+        .navbar-brand span { color: var(--gold-accent); }
+
+        .nav-link {
+            color: var(--ink-dark) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-left: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .nav-link:hover { opacity: 1; }
+
+        /* HERO SECTION */
+        .hero-section {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 4rem 0;
+        }
+        /* Cercle décoratif abstrait en arrière-plan */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(192, 160, 98, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .display-title {
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .display-title span {
+            font-style: italic;
+            color: var(--gold-accent);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #64748b;
+            margin-bottom: 3rem;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+
+        /* BOUTONS MINIMALISTES */
+        .btn-custom {
+            padding: 15px 40px;
+            border-radius: 0;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.4s ease;
+            border: 1px solid var(--ink-dark);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--ink-dark);
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: transparent;
+            color: var(--ink-dark);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline-custom {
+            background-color: transparent;
+            color: var(--ink-dark);
+        }
+        .btn-outline-custom:hover {
+            background-color: var(--ink-dark);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* IMAGE STYLE */
+        .hero-image-container {
+            position: relative;
+            padding: 20px;
+        }
+        .hero-image {
+            width: 100%;
+            border-radius: 2px;
+            filter: grayscale(20%) sepia(10%);
+            opacity: 0.95;
+            box-shadow: 20px 20px 0px rgba(192, 160, 98, 0.15); /* Cadre décalé */
+        }
+
+        /* FOOTER MINIMAL */
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="">Biblio<span>.</span>Tech</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto align-items-center">
+                <!-- Logique Auth -->
+                <!-- Client non-connecté -->
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="nav-link">Connexion</a>
+                </div>
+                <!-- Client connecté -->
+                <div sec:authorize="isAuthenticated()" class="d-flex align-items-center">
+                    <div sec:authorize="hasRole('ADMIN')" class="d-flex align-items-center">
+                    <a th:href="@{/admin/dashboard}" class="nav-link">Admin</a>
+                    <span class="nav-link d-none d-lg-block" style="opacity: 0.3;">|</span>
+                    </div>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn nav-link" style="background: none; border: none; padding-left: 2rem;">Déconnexion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center gy-5">
+            <!-- Texte -->
+            <div class="col-lg-6 order-2 order-lg-1">
+                <h1 class="display-title">
+                    L'élégance du <br>
+                    <span>Savoir.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Une bibliothèque moderne conçue pour les esprits curieux.
+                    Gérez, empruntez et découvrez votre prochaine lecture dans un espace digital apaisé.
+                </p>
+
+                <div class="d-flex gap-3">
+                    <div sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/login}" class="btn-custom btn-primary-custom">Espace Membre</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()">
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/books}" class="btn-custom btn-primary-custom">Le Catalogue</a>
+                        <a sec:authorize="hasRole('USER')" th:href="@{/user/dashboard}" class="btn-custom btn-primary-custom">DashBoard</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image -->
+            <div class="col-lg-6 order-1 order-lg-2">
+                <div class="hero-image-container">
+                    <!-- Une image de bibliothèque minimaliste et lumineuse -->
+                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1000"
+                         alt="Bibliothèque moderne"
+                         class="hero-image">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container text-center">
+        <p>&copy; 2025 Biblio.Tech — Excellence & Design</p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

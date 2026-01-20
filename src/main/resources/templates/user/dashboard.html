@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Espace | Biblio-Tech</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-paper: #f8f5f2;
+            --ink-dark: #1e293b;
+            --gold-accent: #c0a062;
+            --soft-gray: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg-paper);
+            color: var(--ink-dark);
+            font-weight: 300;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, .serif-font {
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            padding: 1.5rem 0;
+            background: white;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+        .navbar-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--ink-dark) !important;
+        }
+        .navbar-brand span { color: var(--gold-accent); }
+        .nav-link { color: var(--ink-dark); font-weight: 500; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* CARTES & TABLEAUX */
+        .section-title {
+            border-left: 4px solid var(--gold-accent);
+            padding-left: 15px;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card-book {
+            background: white;
+            border: none;
+            transition: transform 0.3s;
+            height: 100%;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+        .card-book:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* STYLE TABLEAU MES EMPRUNTS */
+        .table-custom thead th {
+            background-color: transparent;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+        .table-custom tbody td {
+            vertical-align: middle;
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* BOUTONS */
+        .btn-borrow {
+            width: 100%;
+            border: 1px solid var(--ink-dark);
+            color: var(--ink-dark);
+            border-radius: 0;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            padding: 10px;
+            background: transparent;
+            transition: all 0.3s;
+        }
+        .btn-borrow:hover {
+            background: var(--ink-dark);
+            color: white;
+        }
+        .btn-borrow:disabled {
+            border-color: #cbd5e1;
+            color: #cbd5e1;
+        }
+
+        .btn-return {
+            font-size: 0.75rem;
+            text-decoration: underline;
+            color: var(--gold-accent);
+            background: none;
+            border: none;
+            padding: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-return:hover { color: var(--ink-dark); }
+
+        /* Alertes */
+        .alert-custom {
+            border-radius: 0;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="/">Biblio<span>.</span>Tech <small style="font-family: 'Jost'; font-size: 0.8rem; color: #999;">MEMBRE</small></a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="nav-link" sec:authentication="name">User</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm rounded-0" style="font-size: 0.7rem; letter-spacing: 1px;">DÉCONNEXION</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mb-5">
+
+    <!-- Feedback Messages -->
+    <div th:if="${success}" class="alert alert-success alert-custom shadow-sm mb-4">
+        <i class="bi bi-check-circle me-2"></i> <span th:text="${success}">Ceci est un message de succès</span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-custom shadow-sm mb-4">
+        <i class="bi bi-exclamation-circle me-2"></i> <span th:text="${error}">Ceci est un message d'erreur</span>
+    </div>
+
+    <!-- SECTION 1: MES EMPRUNTS -->
+    <h3 class="section-title">Mes lectures en cours</h3>
+
+    <div class="card border-0 shadow-sm p-4 bg-white mb-5">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                <tr>
+                    <th>Ouvrage</th>
+                    <th>Emprunté le</th>
+                    <th>À rendre avant le</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="loan : ${myLoans}" th:if="${loan.isActive() == true}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-book me-3 text-muted"></i>
+                            <div>
+                                <strong th:text="${loan.book.title}">Titre</strong>
+                                <br>
+                                <small class="text-muted" th:text="${loan.book.author != null ? loan.book.author.name : 'Auteur inconnu'}">Auteur</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${#temporals.format(loan.loanDate, 'dd MMM yyyy')}">Date</td>
+                    <td>
+                            <span th:text="${#temporals.format(loan.dueDate, 'dd MMM yyyy')}"
+                                  th:class="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'text-danger fw-bold' : ''">
+                                Date Fin
+                            </span>
+                        <span th:if="${loan.dueDate.isBefore(T(java.time.LocalDate).now())}" class="badge bg-danger ms-2" style="font-size: 0.6rem;">RETARD</span>
+                    </td>
+                    <td class="text-end">
+                        <!-- Bouton Retour -->
+                        <a th:href="@{/user/loans/close/{loanId}(loanId=${loan.id})}"
+                           class="btn-return"
+                           onclick="return confirm('Confirmer le retour de ce livre ?')">
+                            <i class="bi bi-box-arrow-in-left"></i> Rendre ce livre
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(myLoans)}">
+                    <td colspan="4" class="text-center py-4 text-muted fst-italic">
+                        Vous n'avez aucun emprunt en cours. Profitez du catalogue ci-dessous !
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECTION 2: CATALOGUE -->
+    <h3 class="section-title">Catalogue Disponible</h3>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <!-- Carte Livre -->
+        <div class="col" th:each="book : ${books}">
+            <div class="card card-book h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge bg-light text-dark mb-2 align-self-start"
+                          th:text="${book.category != null ? book.category.name : 'Général'}">Catégorie</span>
+
+                    <h5 class="card-title serif-font mb-1" th:text="${book.title}">Titre</h5>
+                    <p class="card-text text-muted small mb-3" th:text="${book.author != null ? book.author.name : 'Auteur'}">Auteur</p>
+
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted" style="font-size: 0.75rem;">STOCK</small>
+                            <span class="fw-bold"
+                                  th:classappend="${book.availableCopies > 0 ? 'text-success' : 'text-danger'}"
+                                  th:text="${book.availableCopies > 0 ? 'En rayon' : 'Épuisé'}">Dispo</span>
+                        </div>
+
+                        <!-- Formulaire d'emprunt -->
+                        <form th:action="@{/user/loans/create}" method="post">
+                            <input type="hidden" name="bookId" th:value="${book.id}"/>
+                            <button type="submit" class="btn-borrow"
+                                    th:disabled="${book.availableCopies == 0}">
+                                <span th:if="${book.availableCopies > 0}">Emprunter</span>
+                                <span th:if="${book.availableCopies == 0}">Indisponible</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div class="container text-center">
+        <p>&copy; 2025 Biblio.Tech — Excellence & Design</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

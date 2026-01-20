@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Éditer un Livre | Biblio-Tech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-paper: #f8f5f2;
+            --ink-dark: #1e293b;
+            --gold-accent: #c0a062;
+            --soft-gray: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg-paper);
+            color: var(--ink-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h4 { font-family: 'DM Serif Display', serif; }
+
+        .card-edit {
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            background: white;
+            border-top: 4px solid var(--gold-accent); /* Touche de couleur élégante */
+            border-radius: 4px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0;
+            border: 1px solid var(--soft-gray);
+            padding: 10px 15px;
+            font-weight: 300;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: var(--ink-dark);
+        }
+
+        .btn-custom {
+            border-radius: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            padding: 12px 30px;
+            border: 1px solid var(--ink-dark);
+        }
+        .btn-save { background-color: var(--ink-dark); color: white; }
+        .btn-save:hover { background-color: transparent; color: var(--ink-dark); }
+
+        .btn-cancel { background-color: transparent; color: #64748b; border-color: transparent; }
+        .btn-cancel:hover { color: var(--ink-dark); text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-edit p-4 p-md-5">
+
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h4 class="mb-0 fs-3">Détails de l'ouvrage</h4>
+                    <span class="badge bg-light text-dark rounded-0 border" th:text="${book.id != null ? 'MODE ÉDITION' : 'NOUVEAU LIVRE'}"></span>
+                </div>
+
+                <form th:action="@{/admin/books/save}" th:object="${book}" method="post">
+                    <input type="hidden" th:field="*{id}"/>
+
+                    <!-- Section Infos Principales -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <label for="title" class="form-label">Titre de l'ouvrage</label>
+                            <input type="text" class="form-control fs-5" id="title" th:field="*{title}" placeholder="Ex: Clean Code" required>
+                            <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger small mt-1"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="isbn" class="form-label">Référence ISBN</label>
+                            <input type="text" class="form-control" id="isbn" th:field="*{isbn}" placeholder="000-000-000" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="publicationDate" class="form-label">Publication</label>
+                            <input type="date" class="form-control" id="publicationDate" th:field="*{publicationDate}" required>
+                        </div>
+                    </div>
+
+                    <hr class="text-muted opacity-25 my-4">
+
+                    <!-- Section Relations -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label for="author" class="form-label">Auteur</label>
+                            <select class="form-select" id="author" name="authorId" required>
+                                <option value="" disabled selected>Choisir un auteur...</option>
+                                <option th:each="auth : ${authors}"
+                                        th:value="${auth.id}"
+                                        th:text="${auth.name}"
+                                        th:selected="${book.author != null && auth.id == book.author.id}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Catégorie</label>
+                            <select class="form-select" id="category" name="categoryId" required>
+                                <option value="" disabled selected>Choisir une catégorie...</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}"
+                                        th:selected="${book.category != null && cat.id == book.category.id}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section Stock -->
+                    <div class="bg-light p-4 mb-5 rounded-1">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="totalCopies" class="form-label">Stock Total</label>
+                                <input type="number" class="form-control" id="totalCopies" th:field="*{totalCopies}" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="availableCopies" class="form-label">Disponible actuellement</label>
+                                <input type="number" class="form-control" id="availableCopies" th:field="*{availableCopies}" min="0" th:max="${book.totalCopies}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-end gap-3 align-items-center">
+                        <a th:href="@{/admin/books}" class="btn-custom btn-cancel">Annuler</a>
+                        <button type="submit" class="btn-custom btn-save">Enregistrer l'ouvrage</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
