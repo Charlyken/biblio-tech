@@ -36,7 +36,7 @@ public class AuthController {
     }
 
    @PostMapping("/register")
-    public String processRegistration(@Valid @ModelAttribute("userDto") UserDto userDto, BindingResult result, Model model){
+    public String processRegistration(@Valid @ModelAttribute("userDto") UserDto userDto, BindingResult result){
 
         if(result.hasErrors()){
             return "register";

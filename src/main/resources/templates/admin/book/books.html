@@ -204,7 +204,7 @@
                             </a>
 
                             <!-- Emprunter (Si stock > 0) -->
-                            <form th:action="@{/loans/create}" method="post" class="d-inline"
+                            <form th:action="@{/admin/loans/create}" method="post" class="d-inline"
                                   th:if="${book.availableCopies > 0}">
                                 <input type="hidden" name="bookId" th:value="${book.id}"/>
                                 <button type="submit" class="btn btn-outline-dark btn-custom btn-action" title="Emprunter">

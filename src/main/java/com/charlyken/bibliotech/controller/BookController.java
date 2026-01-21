@@ -3,7 +3,6 @@ package com.charlyken.bibliotech.controller;
 
 import com.charlyken.bibliotech.dto.BookDto;
 import com.charlyken.bibliotech.exception.BusinessException;
-import com.charlyken.bibliotech.model.Book;
 import com.charlyken.bibliotech.service.AuthorService;
 import com.charlyken.bibliotech.service.BookService;
 import com.charlyken.bibliotech.service.CategoryService;
@@ -38,9 +37,9 @@ public class BookController {
      */
     @GetMapping("/edit/{id}")
     public String showEditBookForm(@PathVariable Long id, Model model) {
-        log.info("Editing book {}", id);
+        log.info("Editing bookDto {}", id);
         //1. Attribution du livre au model
-        model.addAttribute("book", bookService.findBookById(id));
+        model.addAttribute("bookDto", bookService.findBookById(id));
         //2. Recuperation de la liste des auteurs presents
         model.addAttribute("authors", authorService.getAllAuthors());
         //3. Recuperation de la liste des categories presentes
@@ -53,17 +52,17 @@ public class BookController {
      * Sauvegarde des informations issues du formulaire
      */
     @PostMapping("/save")
-    public String saveBook(@Valid @ModelAttribute("book") BookDto bookDto, BindingResult result,
+    public String saveBook(@Valid @ModelAttribute("bookDto") BookDto bookDto, BindingResult result,
                            @RequestParam(required = false) Long authorId,
                            @RequestParam(required = false) Long categoryId, Model model) {
         //@ModelAttribute prend tout les champs du formulaire
         // et les assemble dans un objet Book
-        // Si book.id est null alors c'est un nouveau book
-        // Si book.id !=null alors c'est MODIF
+        // Si bookDto.id est null alors c'est un nouveau bookDto
+        // Si bookDto.id !=null alors c'est MODIF
 
 
         log.info("Book to edit: {} with authorId: {} and categoryId: {}", bookDto, authorId, categoryId);
-
+        log.info("result.hasErrors:{}",result.hasErrors());
         if (result.hasErrors()) {
             model.addAttribute("authors", authorService.getAllAuthors());
             model.addAttribute("categories", categoryService.getAllCategories());
@@ -84,11 +83,11 @@ public class BookController {
     }
 
     /**
-     * Dirige vers le formulaire d'ajout pour un nouveau book
+     * Dirige vers le formulaire d'ajout pour un nouveau bookDto
      */
     @GetMapping("/add")
     public String showAddBookForm(Model model) {
-        model.addAttribute("book", new BookDto());
+        model.addAttribute("bookDto", new BookDto());
         model.addAttribute("authors", authorService.getAllAuthors());
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/book/book-form";

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Éditer un Livre | Biblio-Tech</title>
@@ -77,10 +77,10 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h4 class="mb-0 fs-3">Détails de l'ouvrage</h4>
-                    <span class="badge bg-light text-dark rounded-0 border" th:text="${book.id != null ? 'MODE ÉDITION' : 'NOUVEAU LIVRE'}"></span>
+                    <span class="badge bg-light text-dark rounded-0 border" th:text="${bookDto.id != null ? 'MODE ÉDITION' : 'NOUVEAU LIVRE'}"></span>
                 </div>
 
-                <form th:action="@{/admin/books/save}" th:object="${book}" method="post">
+                <form th:action="@{/admin/books/save}" th:object="${bookDto}" method="post">
                     <input type="hidden" th:field="*{id}"/>
 
                     <!-- Section Infos Principales -->
@@ -94,6 +94,7 @@
                         <div class="col-md-6">
                             <label for="isbn" class="form-label">Référence ISBN</label>
                             <input type="text" class="form-control" id="isbn" th:field="*{isbn}" placeholder="000-000-000" required>
+                            <div th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="text-danger small mt-1"></div>
                         </div>
 
                         <div class="col-md-6">
@@ -113,7 +114,7 @@
                                 <option th:each="auth : ${authors}"
                                         th:value="${auth.id}"
                                         th:text="${auth.name}"
-                                        th:selected="${book.author != null && auth.id == book.author.id}">
+                                        th:selected="${bookDto.author != null && auth.id == bookDto.author.id}">
                                 </option>
                             </select>
                         </div>
@@ -125,7 +126,7 @@
                                 <option th:each="cat : ${categories}"
                                         th:value="${cat.id}"
                                         th:text="${cat.name}"
-                                        th:selected="${book.category != null && cat.id == book.category.id}">
+                                        th:selected="${bookDto.category != null && cat.id == bookDto.category.id}">
                                 </option>
                             </select>
                         </div>
@@ -137,10 +138,12 @@
                             <div class="col-md-6">
                                 <label for="totalCopies" class="form-label">Stock Total</label>
                                 <input type="number" class="form-control" id="totalCopies" th:field="*{totalCopies}" min="1" required>
+                                <div th:if="${#fields.hasErrors('totalCopies')}" th:errors="*{totalCopies}" class="text-danger small mt-1"></div>
                             </div>
                             <div class="col-md-6">
                                 <label for="availableCopies" class="form-label">Disponible actuellement</label>
-                                <input type="number" class="form-control" id="availableCopies" th:field="*{availableCopies}" min="0" th:max="${book.totalCopies}" required>
+                                <input type="number" class="form-control" id="availableCopies" th:field="*{availableCopies}" min="0" th:max="${bookDto.totalCopies}" required>
+                                <div th:if="${#fields.hasErrors('availableCopies')}" th:errors="*{availableCopies}" class="text-danger small mt-1"></div>
                             </div>
                         </div>
                     </div>
