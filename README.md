@@ -21,7 +21,7 @@
 | <img src="docs/screens/loan_page.png" width="300" alt="Page Emprunt"> |       <img src="docs/screens/user_profile.png" width="300" alt="Profil">       | <img src="docs/screens/add_book.png" width="300" alt="Formulaire Livre"> |
 |                      *Transactionnel (à venir)*                       |                        *Historique personnel(à venir)*                         |                            *Edition Atomique*                            |
 
-> *Note : Une vidéo complète du parcours utilisateur est disponible [ici](docs/demo.mp4).*
+> *Note : Une vidéo complète du parcours utilisateur est disponible [ici](docs/demo.mp4).(à venir)*
 
 ---
 
